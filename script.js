@@ -477,9 +477,9 @@ function generateTextFile() {
   let j = 1;
   let f = 1;
 
-while (x < 30) {
+while (x <= 29) {
   
-  if (j != 6) {
+  if (j != 5) {
     newArray.push([f, allLettersCounts[x]]);
     j++;
     console.log(j)
