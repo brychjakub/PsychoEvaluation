@@ -353,6 +353,7 @@ function getHiddenValues() {
       `Value ${rows_to_check
         .map((r) => r + 1)
         .join(", ")}: ${total_hidden_value} (${letter})`
+      
     );
   }
 
@@ -368,28 +369,65 @@ function getHiddenValues() {
   return letter_counts_dict;
 }
 
-let letters = getHiddenValues();
-console.log(letters);
+function getAllLetters() {
+  let allLettersCounts = [];
+  let rows_to_check1 = [0, 30, 60, 90, 120, 150, 180, 210];
 
-function generatePDF() {
-  // Take a screenshot of the page
-  html2canvas(document.body, { quality: 1, scale: 10 }).then(function (canvas) {
-    // Convert the screenshot into a PDF file
-    var imgData = canvas.toDataURL("image/png");
-    // orientation of the PDF file: 'p' for portrait, 'l' for landscape
-    var doc = new jsPDF("l", "px", "a4");
-    var width = doc.internal.pageSize.getWidth();
-    var height = doc.internal.pageSize.getHeight();
-    // improve the quality of the PDF file
-    doc.addImage(imgData, "PNG", 0, 0, width, height);
-    // Download the PDF file
-    doc.save("questionnaire.pdf");
-  });
+  let letter_counts = { N: 0, E: 0, O: 0, P: 0, S: 0 };
+  let letters = "NEOPS";
+
+  for (let j = 1; j < 31; j++) {
+    let total_hidden_value = 0;
+    let rows_to_check = rows_to_check1.map((i) => i + (j - 1));
+    for (let i = 0; i < selectedOptions.size; i++) {
+      let current_col_selection = current_row_selection[i - 1];
+      if (rows_to_check.includes(i) && current_col_selection != -1) {
+        total_hidden_value += hiddenValues[i][current_col_selection];
+        {
+          if (isNaN(total_hidden_value)) {
+            total_hidden_value = 0;
+          }
+        }
+      }
+    }
+    let letter = letters[(j - 1) % letters.length];
+    letter_counts[letter] += total_hidden_value;
+    allLettersCounts.push(`${letter}: ${total_hidden_value}`);
+    
+    
+    console.log(
+      `Value ${rows_to_check
+        .map((r) => r + 1)
+        .join(", ")}: ${total_hidden_value} (${letter})`
+
+    );
+  }
+
+  let letter_counts_dict = {};
+
+  // Print the combined value for each letter
+  console.log("Combined values:");
+  for (const [letter, count] of Object.entries(letter_counts)) {
+    console.log(`${letter}: ${count}`);
+    letter_counts_dict[letter] = count;
+  }
+  console.log(allLettersCounts)
+  return allLettersCounts;
 }
+
+
+
+let letters = getHiddenValues();
+let allLettersCounts = getAllLetters();
+console.log(letters);
+console.log("znovu:" + allLettersCounts);
+
 
 function downloadTextFile() {
   // define data for file
   const letter_counts_dict = getHiddenValues();
+  const allLettersCounts = getAllLetters();
+
   const text = JSON.stringify(letter_counts_dict, null, 2);
   const filename = "NEOPS.txt";
 
@@ -430,7 +468,38 @@ function generateTextFile() {
   const text8 = `Zaznamenal(a) jste své odpovědi na správné místo?: ${q8}`;
 
   const letter_counts_dict = getHiddenValues();
+  const allLettersCounts = getAllLetters();
+
+  const newArray = [];
+
+
+  let x = 0;
+  let j = 1;
+  let f = 1;
+
+while (x < 30) {
+  
+  if (j != 5) {
+    newArray.push([f, allLettersCounts[x]]);
+    j++;
+    console.log(j)
+
+  } else {
+  j = 1;
+  f++
+  }
+
+  x++;
+}
+  
+  
+  console.log(newArray);
+
   const NEOPS = JSON.stringify(letter_counts_dict, null, 2);
+  const letters = JSON.stringify(newArray, null, 2);
+
+
+  
 
   const element = document.createElement("a");
   element.setAttribute(
@@ -453,8 +522,10 @@ function generateTextFile() {
       encodeURIComponent(text8) +
       `\n` +
       NEOPS
+      +
+      letters
   );
-  element.setAttribute("download", "questionnaire.txt");
+  element.setAttribute("download", `${q1}`);
   element.style.display = "none";
   document.body.appendChild(element);
 
