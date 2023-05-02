@@ -479,24 +479,27 @@ function generateTextFile() {
 
 while (x < 30) {
   
-  if (j != 5) {
+  if (j != 6) {
     newArray.push([f, allLettersCounts[x]]);
     j++;
     console.log(j)
 
   } else {
+    newArray.push([f, allLettersCounts[x]]);
+
   j = 1;
   f++
   }
 
   x++;
 }
+
+let flatArray = newArray.flat(); // removes outer array brackets
+
   
-  
-  console.log(newArray);
 
   const NEOPS = JSON.stringify(letter_counts_dict, null, 2);
-  const letters = JSON.stringify(newArray, null, 2);
+  const letters = JSON.stringify(flatArray, null, 2);
 
 
   
